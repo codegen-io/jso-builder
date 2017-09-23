@@ -95,7 +95,7 @@
               <relocations>
                 <relocation>
                   <pattern>com.squareup.javapoet</pattern>
-                  <shadedPattern>io.codegen.jso-builder.processor.internal.$javapoet$</shadedPattern>
+                  <shadedPattern>io.codegen.jsobuilder.processor.internal.$javapoet$</shadedPattern>
                 </relocation>
               </relocations>
 
