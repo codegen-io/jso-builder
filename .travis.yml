@@ -1,0 +1,15 @@
+# This is a Java project
+language: java
+
+# Use the trusty distribution in order to use OpenJDK 8
+dist: trusty
+
+# Use the OpenJDK 8 version of Java
+jdk:
+ - openjdk8
+
+# We don't need sudo support
+sudo: false
+
+# Run Maven command in order to run tests and create packages
+script: mvn clean install
