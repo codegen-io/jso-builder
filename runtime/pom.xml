@@ -15,6 +15,11 @@
   <name>${project.artifactId}</name>
   <url>http://codegen.io/</url>
 
+  <properties>
+    <!-- Skip JavaDoc generation because it fails due to the fact there are no Java classes -->
+    <maven.javadoc.skip>true</maven.javadoc.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.immutables</groupId>
