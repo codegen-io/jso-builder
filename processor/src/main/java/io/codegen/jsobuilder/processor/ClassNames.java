@@ -16,4 +16,6 @@ public class ClassNames {
 
     public static final ClassName JSINTEROP_JSOVERLAY = ClassName.get(JSINTEROP_PACKAGE, "JsOverlay");
 
+    public static final ClassName JS_BUILDER_ANNOTATION = ClassName.get("io.codegen.jsobuilder.annotations", "JsBuilder");
+
 }

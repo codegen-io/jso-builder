@@ -55,7 +55,7 @@ public class JSOBuilderProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         return Arrays.asList(
-                ClassNames.JSINTEROP_JSTYPE).stream()
+                ClassNames.JS_BUILDER_ANNOTATION).stream()
                 .map(ClassName::toString)
                 .collect(Collectors.toSet());
     }
@@ -68,7 +68,6 @@ public class JSOBuilderProcessor extends AbstractProcessor {
         classesToProcess.stream()
             .filter(name -> !processedClasses.contains(name))
             .map(name -> elementUtils.getTypeElement(name))
-            .filter(this::isJsObject)
             .forEach(this::generateBuilder);
 
         if (roundEnv.processingOver()) {
@@ -86,9 +85,14 @@ public class JSOBuilderProcessor extends AbstractProcessor {
     }
 
     private String getClassName(Element element) {
+        // Determine if the class or the inner builder is annotated
         switch (element.getKind()) {
             case CLASS:
-                return element.asType().toString();
+                if (ElementKind.CLASS.equals(element.getEnclosingElement().getKind())) {
+                    return element.getEnclosingElement().asType().toString();
+                } else {
+                    return element.asType().toString();
+                }
             default:
                 emitError("Unkown element kind " + element.getKind(), element);
                 return null;
@@ -100,6 +104,11 @@ public class JSOBuilderProcessor extends AbstractProcessor {
     }
 
     private void generateBuilder(TypeElement element) {
+        if (!isJsObject(element)) {
+            emitError("Type isn't a pure JsType JavaScript object", element);
+            return;
+        }
+
         ClassName className = ClassName.get(element);
         ClassName builderName = className.peerClass(className.simpleName() + "JSOBuilder");
 

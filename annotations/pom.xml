@@ -9,49 +9,22 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>jso-builder-integration</artifactId>
+  <artifactId>jso-builder-annotations</artifactId>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
   <url>http://codegen.io/</url>
 
-  <properties>
-    <!-- Automatically run annotation processors within the incremental compilation in Eclipse -->
-    <m2e.apt.activation>jdt_apt</m2e.apt.activation>
-  </properties>
-
   <dependencies>
     <dependency>
-      <groupId>io.codegen.jso-builder</groupId>
-      <artifactId>jso-builder-annotations</artifactId>
-      <scope>provided</scope>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.jsinterop</groupId>
-      <artifactId>jsinterop-annotations</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.immutables</groupId>
-      <artifactId>metainf</artifactId>
+      <artifactId>value</artifactId>
       <classifier>annotations</classifier>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.immutables</groupId>
-      <artifactId>value</artifactId>
+      <artifactId>metainf</artifactId>
       <classifier>annotations</classifier>
       <scope>provided</scope>
     </dependency>
@@ -61,7 +34,6 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>
@@ -72,18 +44,13 @@
         <configuration>
           <annotationProcessorPaths>
             <path>
-              <groupId>io.codegen.jso-builder</groupId>
-              <artifactId>jso-builder-processor</artifactId>
-              <version>${project.version}</version>
-            </path>
-            <path>
               <groupId>org.immutables</groupId>
-              <artifactId>metainf</artifactId>
+              <artifactId>value</artifactId>
               <version>${immutables.version}</version>
             </path>
             <path>
               <groupId>org.immutables</groupId>
-              <artifactId>value</artifactId>
+              <artifactId>metainf</artifactId>
               <version>${immutables.version}</version>
             </path>
           </annotationProcessorPaths>
@@ -91,5 +58,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>

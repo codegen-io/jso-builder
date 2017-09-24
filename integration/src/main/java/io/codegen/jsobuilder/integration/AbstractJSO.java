@@ -1,7 +1,9 @@
+
 package io.codegen.jsobuilder.integration;
 
 import java.util.function.Supplier;
 
+import io.codegen.jsobuilder.annotations.JsBuilder;
 import jsinterop.annotations.JsIgnore;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
@@ -28,6 +30,7 @@ public abstract class AbstractJSO {
     @JsOverlay
     String overlayedProperty = new String("overlayed");
 
+    @JsBuilder
     public static class Builder extends AbstractJSOJSOBuilder {
         public Builder(Supplier<? extends AbstractJSO> supplier) {
             super(supplier);

@@ -60,6 +60,7 @@
   </properties>
 
   <modules>
+    <module>annotations</module>
     <module>runtime</module>
     <module>processor</module>
     <module>test</module>

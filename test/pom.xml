@@ -18,6 +18,13 @@
   <dependencies>
     <dependency>
       <groupId>io.codegen.jso-builder</groupId>
+      <artifactId>jso-builder-annotations</artifactId>
+      <scope>provided</scope>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.codegen.jso-builder</groupId>
       <artifactId>jso-builder-processor</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
