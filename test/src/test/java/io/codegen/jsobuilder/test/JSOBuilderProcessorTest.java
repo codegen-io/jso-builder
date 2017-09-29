@@ -33,6 +33,15 @@ public class JSOBuilderProcessorTest {
     }
 
     @Test
+    public void conflictingNamesAreRenamed() throws IOException {
+        Compilation compilation = compiler.compile(JavaFileObjects.forResource("test/WithConflictingNames.java"));
+
+        assertThat(compilation).succeeded();
+        assertThat(compilation).generatedSourceFile("test/WithConflictingNamesJSOBuilder")
+            .hasSourceEquivalentTo(JavaFileObjects.forResource("test/WithConflictingNamesJSOBuilder.java"));
+    }
+
+    @Test
     public void nonJsTypeThrowsException() throws IOException {
         Compilation compilation = compiler.compile(JavaFileObjects.forResource("test/NonJsType.java"));
 

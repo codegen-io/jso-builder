@@ -1,11 +1,9 @@
 package test;
 
 import com.google.gwt.core.shared.GWT;
-
 import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 
@@ -17,17 +15,17 @@ public abstract class AbstractJSOJSOBuilder {
     }
 
     public AbstractJSOJSOBuilder withStringProperty(String stringProperty) {
-        object.stringProperty = stringProperty;
+        this.object.stringProperty = stringProperty;
         return this;
     }
 
     public AbstractJSOJSOBuilder withIntProperty(int intProperty) {
-        object.intProperty = intProperty;
+        this.object.intProperty = intProperty;
         return this;
     }
 
     public AbstractJSOJSOBuilder withPropertyWithoutAnnotation(String propertyWithoutAnnotation) {
-        object.propertyWithoutAnnotation = propertyWithoutAnnotation;
+        this.object.propertyWithoutAnnotation = propertyWithoutAnnotation;
         return this;
     }
 
@@ -35,26 +33,23 @@ public abstract class AbstractJSOJSOBuilder {
     public AbstractJSOJSOBuilder withStringArrayProperty(String[] stringArrayProperty) {
         if (GWT.isClient()) {
             JsArray<String> array;
-            if (object.stringArrayProperty != null) {
-                Object value = object.stringArrayProperty;
+            if (this.object.stringArrayProperty != null) {
+                Object value = this.object.stringArrayProperty;
                 array = (JsArray<String>) value;
             } else {
                 array = new JsArray<>();
-
                 Object value = array;
-                object.stringArrayProperty = (String[]) value;
+                this.object.stringArrayProperty = (String[]) value;
             }
-
             for (int i = 0; i < stringArrayProperty.length; i++) {
                 array.push(stringArrayProperty[i]);
             }
         } else {
-            if (object.stringArrayProperty == null) {
-                object.stringArrayProperty = new String[0];
+            if (this.object.stringArrayProperty == null) {
+                this.object.stringArrayProperty = new String[0];
             }
-
-            object.stringArrayProperty = Stream.concat(
-                    Arrays.stream(object.stringArrayProperty), Arrays.stream(stringArrayProperty))
+            this.object.stringArrayProperty = Stream.concat(
+                    Arrays.stream(this.object.stringArrayProperty), Arrays.stream(stringArrayProperty))
                     .toArray(size -> new String[size]);
         }
         return this;
@@ -68,4 +63,5 @@ public abstract class AbstractJSOJSOBuilder {
     static final class JsArray<T> {
         public native void push(T item);
     }
+
 }

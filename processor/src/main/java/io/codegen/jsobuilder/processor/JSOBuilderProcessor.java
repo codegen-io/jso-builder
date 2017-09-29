@@ -33,6 +33,7 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.NameAllocator;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -172,31 +173,37 @@ public class JSOBuilderProcessor extends AbstractProcessor {
         CodeBlock code;
 
         if (TypeKind.ARRAY.equals(element.asType().getKind())) {
-            String name = element.getSimpleName().toString();
+            NameAllocator names = new NameAllocator();
+
+            String name = names.newName(element.getSimpleName().toString());
+            String array = names.newName("array");
+            String value = names.newName("value");
+            String size = names.newName("size");
+
             TypeMirror componentType = TypeMapper.asArrayType(element.asType()).getComponentType();
 
             code = CodeBlock.builder()
                     .beginControlFlow("if ($T.isClient())", ClassNames.GWT_SHARED_HELPER)
-                        .addStatement("JsArray<$T> array", componentType)
-                        .beginControlFlow("if (object.$L != null)", name)
-                            .addStatement("Object value = object.$L", name)
-                            .addStatement("array = (JsArray<$T>) value", componentType)
+                        .addStatement("JsArray<$T> $L", componentType, array)
+                        .beginControlFlow("if (this.object.$L != null)", name)
+                            .addStatement("Object $L = this.object.$L", value, name)
+                            .addStatement("$L = (JsArray<$T>) $L", array, componentType, value)
                         .nextControlFlow("else")
-                            .addStatement("array = new JsArray<>()")
-                            .addStatement("Object value = array")
-                            .addStatement("object.$L = ($T[]) value", name, componentType)
+                            .addStatement("$L = new JsArray<>()", array)
+                            .addStatement("Object $L = $L", value, array)
+                            .addStatement("this.object.$L = ($T[]) $L", name, componentType, value)
                         .endControlFlow()
                         .beginControlFlow("for (int i = 0; i < $L.length; i++)", name)
-                            .addStatement("array.push($L[i])", name)
+                            .addStatement("$L.push($L[i])", array, name)
                         .endControlFlow()
                     .nextControlFlow("else")
-                        .beginControlFlow("if (object.$L == null)", name)
-                            .addStatement("object.$L = new $T[0]", name, componentType)
+                        .beginControlFlow("if (this.object.$L == null)", name)
+                            .addStatement("this.object.$L = new $T[0]", name, componentType)
                         .endControlFlow()
-                        .addStatement("object.$L = $T.concat("
-                                + "\n$T.stream(object.$L), $T.stream($L))"
-                                + "\n.toArray(size -> new $T[size])",
-                                name, Stream.class, Arrays.class, name, Arrays.class, name, componentType)
+                        .addStatement("this.object.$L = $T.concat("
+                                + "\n$T.stream(this.object.$L), $T.stream($L))"
+                                + "\n.toArray($L -> new $T[$L])",
+                                name, Stream.class, Arrays.class, name, Arrays.class, name, size, componentType, size)
                     .endControlFlow()
                     .addStatement("return this")
                     .build();
@@ -206,7 +213,7 @@ public class JSOBuilderProcessor extends AbstractProcessor {
                     .build());
         } else {
             code = CodeBlock.builder()
-                    .addStatement("object.$L = $L", element.getSimpleName(), element.getSimpleName())
+                    .addStatement("this.object.$L = $L", element.getSimpleName(), element.getSimpleName())
                     .addStatement("return this")
                     .build();
         }
