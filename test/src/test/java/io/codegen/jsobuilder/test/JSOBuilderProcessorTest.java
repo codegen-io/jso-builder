@@ -25,11 +25,11 @@ public class JSOBuilderProcessorTest {
 
     @Test
     public void testProcessor() throws IOException {
-        Compilation compilation = compiler.compile(JavaFileObjects.forResource("test/AbstractJSO.java"));
+        Compilation compilation = compiler.compile(JavaFileObjects.forResource("test/BasicJSO.java"));
 
         assertThat(compilation).succeeded();
-        assertThat(compilation).generatedSourceFile("test/AbstractJSOJSOBuilder")
-            .hasSourceEquivalentTo(JavaFileObjects.forResource("test/AbstractJSOJSOBuilder.java"));
+        assertThat(compilation).generatedSourceFile("test/BasicJSOJSOBuilder")
+            .hasSourceEquivalentTo(JavaFileObjects.forResource("test/BasicJSOJSOBuilder.java"));
     }
 
     @Test
@@ -67,6 +67,13 @@ public class JSOBuilderProcessorTest {
         Compilation compilation = compiler.compile(JavaFileObjects.forResource("test/NonObjectJsType.java"));
 
         assertThat(compilation).hadErrorContaining("Type isn't a pure JsType JavaScript object");
+    }
+
+    @Test
+    public void nonConcreteJsTypeThrowsException() throws IOException {
+        Compilation compilation = compiler.compile(JavaFileObjects.forResource("test/NonConcreteJsType.java"));
+
+        assertThat(compilation).hadErrorContaining("Type isn't a concrete JsType JavaScript object");
     }
 
 }

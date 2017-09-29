@@ -1,12 +1,10 @@
 package io.codegen.jsobuilder.processor;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,11 +33,9 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.NameAllocator;
 import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.squareup.javapoet.WildcardTypeName;
 
 @Metainf.Service(Processor.class)
 public class JSOBuilderProcessor extends AbstractProcessor {
@@ -86,22 +82,34 @@ public class JSOBuilderProcessor extends AbstractProcessor {
         return annotations.stream()
                 .flatMap(annotation -> environment.getElementsAnnotatedWith(annotation).stream())
                 .map(this::getClassName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toSet());
     }
 
-    private String getClassName(Element element) {
+    private Optional<String> getClassName(Element element) {
+        Element type;
+
         // Determine if the class or the inner builder is annotated
         switch (element.getKind()) {
             case CLASS:
                 if (ElementKind.CLASS.equals(element.getEnclosingElement().getKind())) {
-                    return element.getEnclosingElement().asType().toString();
+                    type = element.getEnclosingElement();
                 } else {
-                    return element.asType().toString();
+                    type = element;
                 }
+                break;
             default:
                 emitError("Unkown element kind " + element.getKind(), element);
-                return null;
+                return Optional.empty();
         }
+
+        if (type.getModifiers().contains(Modifier.ABSTRACT)) {
+            emitError("Type isn't a concrete JsType JavaScript object", type);
+            return Optional.empty();
+        }
+
+        return Optional.of(type.asType().toString());
     }
 
     private void emitError(String message, Element element) {
@@ -122,9 +130,6 @@ public class JSOBuilderProcessor extends AbstractProcessor {
 
         // Create object field
         typeSpec.addField(createObjectField(className));
-
-        // Create builder constructor
-        typeSpec.addMethod(createBuilderConstructor(className));
 
         typeSpec.addMethods(element.getEnclosedElements().stream()
                 .filter(type -> ElementKind.FIELD.equals(type.getKind()))
@@ -154,17 +159,7 @@ public class JSOBuilderProcessor extends AbstractProcessor {
 
     private FieldSpec createObjectField(ClassName className) {
         return FieldSpec.builder(className, "object", Modifier.PRIVATE, Modifier.FINAL)
-                .build();
-    }
-
-    private MethodSpec createBuilderConstructor(ClassName className) {
-        ParameterizedTypeName supplier =
-                ParameterizedTypeName.get(ClassName.get(Supplier.class), WildcardTypeName.subtypeOf(className));
-
-        return MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PROTECTED)
-                .addParameter(supplier, "supplier")
-                .addCode("object = supplier.get();\n", className)
+                .initializer("new $T()", className)
                 .build();
     }
 

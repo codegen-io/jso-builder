@@ -5,5 +5,5 @@ import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 
 @JsBuilder
-@JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Window")
-public class NonObjectJsType {}
+@JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
+public abstract class NonConcreteJsType {}

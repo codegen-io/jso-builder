@@ -2,35 +2,30 @@ package test;
 
 import com.google.gwt.core.shared.GWT;
 import java.util.Arrays;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 
-public abstract class AbstractJSOJSOBuilder {
-    private final AbstractJSO object;
+public abstract class BasicJSOJSOBuilder {
+    private final BasicJSO object = new BasicJSO();
 
-    protected AbstractJSOJSOBuilder(Supplier<? extends AbstractJSO> supplier) {
-        object = supplier.get();
-    }
-
-    public AbstractJSOJSOBuilder withStringProperty(String stringProperty) {
+    public BasicJSOJSOBuilder withStringProperty(String stringProperty) {
         this.object.stringProperty = stringProperty;
         return this;
     }
 
-    public AbstractJSOJSOBuilder withIntProperty(int intProperty) {
+    public BasicJSOJSOBuilder withIntProperty(int intProperty) {
         this.object.intProperty = intProperty;
         return this;
     }
 
-    public AbstractJSOJSOBuilder withPropertyWithoutAnnotation(String propertyWithoutAnnotation) {
+    public BasicJSOJSOBuilder withPropertyWithoutAnnotation(String propertyWithoutAnnotation) {
         this.object.propertyWithoutAnnotation = propertyWithoutAnnotation;
         return this;
     }
 
     @SuppressWarnings("unchecked")
-    public AbstractJSOJSOBuilder withStringArrayProperty(String... stringArrayProperty) {
+    public BasicJSOJSOBuilder withStringArrayProperty(String... stringArrayProperty) {
         if (GWT.isClient()) {
             JsArray<String> array;
             if (this.object.stringArrayProperty != null) {
@@ -55,7 +50,7 @@ public abstract class AbstractJSOJSOBuilder {
         return this;
     }
 
-    public AbstractJSO build() {
+    public BasicJSO build() {
         return object;
     }
 

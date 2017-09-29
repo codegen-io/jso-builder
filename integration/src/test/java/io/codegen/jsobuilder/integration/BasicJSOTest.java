@@ -2,21 +2,13 @@ package io.codegen.jsobuilder.integration;
 
 import static org.junit.Assert.*;
 
-import org.junit.Before;
 import org.junit.Test;
 
-public class AbstractJSOTest {
-
-    AbstractJSO.Builder builder;
-
-    @Before
-    public void setUp() {
-        builder = new AbstractJSO.Builder(() -> new AbstractJSO() {});
-    }
+public class BasicJSOTest {
 
     @Test
     public void testStringProperty() {
-        AbstractJSO jso = builder
+        BasicJSO jso = BasicJSO.builder()
                 .withStringProperty("value")
                 .build();
 
@@ -25,7 +17,7 @@ public class AbstractJSOTest {
 
     @Test
     public void testIntProperty() {
-        AbstractJSO jso = builder
+        BasicJSO jso = BasicJSO.builder()
                 .withIntProperty(1)
                 .build();
 
@@ -34,7 +26,7 @@ public class AbstractJSOTest {
 
     @Test
     public void testBooleanProperty() {
-        AbstractJSO jso = builder
+        BasicJSO jso = BasicJSO.builder()
                 .withBooleanProperty(true)
                 .build();
 
@@ -43,7 +35,7 @@ public class AbstractJSOTest {
 
     @Test
     public void testOverlayedProperty() {
-        AbstractJSO jso = builder
+        BasicJSO jso = BasicJSO.builder()
                 .build();
 
         assertEquals("overlayed", jso.overlayedProperty);
@@ -51,7 +43,7 @@ public class AbstractJSOTest {
 
     @Test
     public void testPropertyWithoutAnnotation() {
-        AbstractJSO jso = builder
+        BasicJSO jso = BasicJSO.builder()
                 .withPropertyWithoutAnnotation("value")
                 .build();
 
@@ -60,7 +52,7 @@ public class AbstractJSOTest {
 
     @Test
     public void testArrayProperty() {
-        AbstractJSO jso = builder
+        BasicJSO jso = BasicJSO.builder()
                 .withStringArrayProperty("value")
                 .withStringArrayProperty("and", "another")
                 .build();

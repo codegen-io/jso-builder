@@ -5,4 +5,4 @@ import jsinterop.annotations.JsType;
 
 @JsBuilder
 @JsType(isNative = true, namespace = "codegen", name = "Object")
-public abstract class NonGlobalJsType {}
+public class NonGlobalJsType {}

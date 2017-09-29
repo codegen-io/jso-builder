@@ -1,8 +1,6 @@
 
 package io.codegen.jsobuilder.integration;
 
-import java.util.function.Supplier;
-
 import io.codegen.jsobuilder.annotations.JsBuilder;
 import jsinterop.annotations.JsIgnore;
 import jsinterop.annotations.JsOverlay;
@@ -11,7 +9,7 @@ import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
-public abstract class AbstractJSO {
+public class BasicJSO {
 
     @JsProperty
     String stringProperty;
@@ -32,11 +30,12 @@ public abstract class AbstractJSO {
 
     String[] stringArrayProperty;
 
-    @JsBuilder
-    public static class Builder extends AbstractJSOJSOBuilder {
-        public Builder(Supplier<? extends AbstractJSO> supplier) {
-            super(supplier);
-        }
+    @JsOverlay
+    public static Builder builder() {
+        return new Builder();
     }
+
+    @JsBuilder
+    public static class Builder extends BasicJSOJSOBuilder {}
 
 }

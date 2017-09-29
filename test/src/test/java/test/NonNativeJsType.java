@@ -6,4 +6,4 @@ import jsinterop.annotations.JsType;
 
 @JsBuilder
 @JsType(isNative = false, namespace = JsPackage.GLOBAL, name = "Object")
-public abstract class NonNativeJsType {}
+public class NonNativeJsType {}

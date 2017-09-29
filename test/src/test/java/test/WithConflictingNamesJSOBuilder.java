@@ -2,17 +2,12 @@ package test;
 
 import com.google.gwt.core.shared.GWT;
 import java.util.Arrays;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 
 public abstract class WithConflictingNamesJSOBuilder {
-    private final WithConflictingNames object;
-
-    protected WithConflictingNamesJSOBuilder(Supplier<? extends WithConflictingNames> supplier) {
-        object = supplier.get();
-    }
+    private final WithConflictingNames object = new WithConflictingNames();
 
     @SuppressWarnings("unchecked")
     public WithConflictingNamesJSOBuilder withValue(String[] value) {
