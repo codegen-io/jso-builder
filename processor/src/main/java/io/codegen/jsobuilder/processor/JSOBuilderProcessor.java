@@ -169,8 +169,6 @@ public class JSOBuilderProcessor extends AbstractProcessor {
     }
 
     private MethodSpec createPropertyMethod(Element element) {
-        List<AnnotationSpec> annotations = new ArrayList<>();
-        CodeBlock code;
 
         if (TypeKind.ARRAY.equals(element.asType().getKind())) {
             NameAllocator names = new NameAllocator();
@@ -182,7 +180,7 @@ public class JSOBuilderProcessor extends AbstractProcessor {
 
             TypeMirror componentType = TypeMapper.asArrayType(element.asType()).getComponentType();
 
-            code = CodeBlock.builder()
+            CodeBlock code = CodeBlock.builder()
                     .beginControlFlow("if ($T.isClient())", ClassNames.GWT_SHARED_HELPER)
                         .addStatement("JsArray<$T> $L", componentType, array)
                         .beginControlFlow("if (this.object.$L != null)", name)
@@ -208,24 +206,31 @@ public class JSOBuilderProcessor extends AbstractProcessor {
                     .addStatement("return this")
                     .build();
 
-            annotations.add(AnnotationSpec.builder(SuppressWarnings.class)
-                    .addMember("value", "$S", "unchecked")
-                    .build());
-        } else {
-            code = CodeBlock.builder()
-                    .addStatement("this.object.$L = $L", element.getSimpleName(), element.getSimpleName())
-                    .addStatement("return this")
+            return MethodSpec.methodBuilder(getWithMethodName(element))
+                    .addModifiers(Modifier.PUBLIC)
+                    .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
+                            .addMember("value", "$S", "unchecked")
+                            .build())
+                    .returns(getBuilderName(element.getEnclosingElement()))
+                    .addParameter(ParameterSpec.builder(TypeName.get(element.asType()), element.getSimpleName().toString())
+                            .build())
+                    .varargs()
+                    .addCode(code)
                     .build();
+        } else {
+            return MethodSpec.methodBuilder(getWithMethodName(element))
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(getBuilderName(element.getEnclosingElement()))
+                    .addParameter(ParameterSpec.builder(TypeName.get(element.asType()), element.getSimpleName().toString())
+                            .build())
+                    .addCode(CodeBlock.builder()
+                            .addStatement("this.object.$L = $L", element.getSimpleName(), element.getSimpleName())
+                            .addStatement("return this")
+                            .build())
+                    .build();
+
         }
 
-        return MethodSpec.methodBuilder(getWithMethodName(element))
-                .addModifiers(Modifier.PUBLIC)
-                .addAnnotations(annotations)
-                .returns(getBuilderName(element.getEnclosingElement()))
-                .addParameter(ParameterSpec.builder(TypeName.get(element.asType()), element.getSimpleName().toString())
-                        .build())
-                .addCode(code)
-                .build();
     }
 
     private MethodSpec createBuildMethod(ClassName className) {

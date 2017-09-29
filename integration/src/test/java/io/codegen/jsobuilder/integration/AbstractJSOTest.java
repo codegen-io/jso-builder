@@ -61,12 +61,12 @@ public class AbstractJSOTest {
     @Test
     public void testArrayProperty() {
         AbstractJSO jso = builder
-                .withStringArrayProperty(new String[]{"value"})
-                .withStringArrayProperty(new String[]{"another"})
+                .withStringArrayProperty("value")
+                .withStringArrayProperty("and", "another")
                 .build();
 
         assertEquals("value", jso.stringArrayProperty[0]);
-        assertEquals("another", jso.stringArrayProperty[1]);
+        assertEquals("another", jso.stringArrayProperty[2]);
     }
 
 }

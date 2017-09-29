@@ -30,7 +30,7 @@ public abstract class AbstractJSOJSOBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public AbstractJSOJSOBuilder withStringArrayProperty(String[] stringArrayProperty) {
+    public AbstractJSOJSOBuilder withStringArrayProperty(String... stringArrayProperty) {
         if (GWT.isClient()) {
             JsArray<String> array;
             if (this.object.stringArrayProperty != null) {
