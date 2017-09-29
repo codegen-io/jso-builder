@@ -4,6 +4,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
@@ -36,6 +37,14 @@ public class TypeMapper {
                 }
             };
 
+    private static final TypeVisitor<ArrayType, Void> ARRAY_TYPE_VISITOR =
+            new SimpleTypeVisitor8<ArrayType, Void>() {
+                @Override
+                public ArrayType visitArray(ArrayType e, Void label) {
+                    return e;
+                }
+            };
+
     /**
      * Convert the given {@link Element} to an {@link ExecutableElement}.
      *
@@ -64,6 +73,16 @@ public class TypeMapper {
      */
     public static DeclaredType asDeclaredType(TypeMirror element) {
         return element.accept(DECLARED_TYPE_VISITOR, null);
+    }
+
+    /**
+     * Convert the given {@link TypeMirror} to a {@link ArrayType}.
+     *
+     * @param element
+     * @return
+     */
+    public static ArrayType asArrayType(TypeMirror element) {
+        return element.accept(ARRAY_TYPE_VISITOR, null);
     }
 
 }

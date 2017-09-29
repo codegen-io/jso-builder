@@ -58,4 +58,15 @@ public class AbstractJSOTest {
         assertEquals("value", jso.propertyWithoutAnnotation);
     }
 
+    @Test
+    public void testArrayProperty() {
+        AbstractJSO jso = builder
+                .withStringArrayProperty(new String[]{"value"})
+                .withStringArrayProperty(new String[]{"another"})
+                .build();
+
+        assertEquals("value", jso.stringArrayProperty[0]);
+        assertEquals("another", jso.stringArrayProperty[1]);
+    }
+
 }

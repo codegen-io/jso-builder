@@ -1,11 +1,14 @@
 package io.codegen.jsobuilder.processor;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
@@ -17,6 +20,8 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic.Kind;
 
@@ -32,6 +37,7 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 import com.squareup.javapoet.WildcardTypeName;
 
 @Metainf.Service(Processor.class)
@@ -40,7 +46,6 @@ public class JSOBuilderProcessor extends AbstractProcessor {
     private final Set<String> processedClasses = new HashSet<>();
 
     private Elements elementUtils = null;
-    // private Types typeUtils = null;
     private Messager messager = null;
 
     @Override
@@ -48,7 +53,6 @@ public class JSOBuilderProcessor extends AbstractProcessor {
         super.init(processingEnv);
 
         this.elementUtils = processingEnv.getElementUtils();
-        // this.typeUtils = processingEnv.getTypeUtils();
         this.messager = processingEnv.getMessager();
     }
 
@@ -133,6 +137,9 @@ public class JSOBuilderProcessor extends AbstractProcessor {
         // Create build method
         typeSpec.addMethod(createBuildMethod(className));
 
+        // Create JsArray type
+        typeSpec.addType(createJsArray());
+
         JavaFile javaFile = JavaFile.builder(builderName.packageName(), typeSpec.build())
                 .skipJavaLangImports(true)
                 .build();
@@ -161,15 +168,56 @@ public class JSOBuilderProcessor extends AbstractProcessor {
     }
 
     private MethodSpec createPropertyMethod(Element element) {
+        List<AnnotationSpec> annotations = new ArrayList<>();
+        CodeBlock code;
+
+        if (TypeKind.ARRAY.equals(element.asType().getKind())) {
+            String name = element.getSimpleName().toString();
+            TypeMirror componentType = TypeMapper.asArrayType(element.asType()).getComponentType();
+
+            code = CodeBlock.builder()
+                    .beginControlFlow("if ($T.isClient())", ClassNames.GWT_SHARED_HELPER)
+                        .addStatement("JsArray<$T> array", componentType)
+                        .beginControlFlow("if (object.$L != null)", name)
+                            .addStatement("Object value = object.$L", name)
+                            .addStatement("array = (JsArray<$T>) value", componentType)
+                        .nextControlFlow("else")
+                            .addStatement("array = new JsArray<>()")
+                            .addStatement("Object value = array")
+                            .addStatement("object.$L = ($T[]) value", name, componentType)
+                        .endControlFlow()
+                        .beginControlFlow("for (int i = 0; i < $L.length; i++)", name)
+                            .addStatement("array.push($L[i])", name)
+                        .endControlFlow()
+                    .nextControlFlow("else")
+                        .beginControlFlow("if (object.$L == null)", name)
+                            .addStatement("object.$L = new $T[0]", name, componentType)
+                        .endControlFlow()
+                        .addStatement("object.$L = $T.concat("
+                                + "\n$T.stream(object.$L), $T.stream($L))"
+                                + "\n.toArray(size -> new $T[size])",
+                                name, Stream.class, Arrays.class, name, Arrays.class, name, componentType)
+                    .endControlFlow()
+                    .addStatement("return this")
+                    .build();
+
+            annotations.add(AnnotationSpec.builder(SuppressWarnings.class)
+                    .addMember("value", "$S", "unchecked")
+                    .build());
+        } else {
+            code = CodeBlock.builder()
+                    .addStatement("object.$L = $L", element.getSimpleName(), element.getSimpleName())
+                    .addStatement("return this")
+                    .build();
+        }
+
         return MethodSpec.methodBuilder(getWithMethodName(element))
                 .addModifiers(Modifier.PUBLIC)
+                .addAnnotations(annotations)
                 .returns(getBuilderName(element.getEnclosingElement()))
                 .addParameter(ParameterSpec.builder(TypeName.get(element.asType()), element.getSimpleName().toString())
                         .build())
-                .addCode(CodeBlock.builder()
-                        .addStatement("object.$L = $L", element.getSimpleName(), element.getSimpleName())
-                        .addStatement("return this")
-                        .build())
+                .addCode(code)
                 .build();
     }
 
@@ -179,6 +227,23 @@ public class JSOBuilderProcessor extends AbstractProcessor {
                 .returns(className)
                 .addCode(CodeBlock.builder()
                         .addStatement("return object")
+                        .build())
+                .build();
+    }
+
+    private TypeSpec createJsArray() {
+        TypeVariableName variableName = TypeVariableName.get("T");
+        return TypeSpec.classBuilder("JsArray")
+                .addModifiers(Modifier.STATIC, Modifier.FINAL)
+                .addTypeVariable(variableName)
+                .addAnnotation(AnnotationSpec.builder(ClassNames.JSINTEROP_JSTYPE)
+                        .addMember("isNative", "true")
+                        .addMember("namespace", "$T.GLOBAL", ClassNames.JSINTEROP_JSPACKAGE)
+                        .addMember("name", "$S", "Array")
+                        .build())
+                .addMethod(MethodSpec.methodBuilder("push")
+                        .addModifiers(Modifier.PUBLIC, Modifier.NATIVE)
+                        .addParameter(variableName, "item")
                         .build())
                 .build();
     }

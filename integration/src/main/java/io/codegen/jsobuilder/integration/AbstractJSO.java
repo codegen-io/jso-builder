@@ -30,6 +30,8 @@ public abstract class AbstractJSO {
     @JsOverlay
     String overlayedProperty = new String("overlayed");
 
+    String[] stringArrayProperty;
+
     @JsBuilder
     public static class Builder extends AbstractJSOJSOBuilder {
         public Builder(Supplier<? extends AbstractJSO> supplier) {

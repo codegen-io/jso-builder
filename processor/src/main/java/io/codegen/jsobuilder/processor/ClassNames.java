@@ -16,6 +16,10 @@ public class ClassNames {
 
     public static final ClassName JSINTEROP_JSOVERLAY = ClassName.get(JSINTEROP_PACKAGE, "JsOverlay");
 
+    public static final ClassName JSINTEROP_JSPACKAGE = ClassName.get(JSINTEROP_PACKAGE, "JsPackage");
+
+    public static final ClassName GWT_SHARED_HELPER = ClassName.get("com.google.gwt.core.shared", "GWT");
+
     public static final ClassName JS_BUILDER_ANNOTATION = ClassName.get("io.codegen.jsobuilder.annotations", "JsBuilder");
 
 }
