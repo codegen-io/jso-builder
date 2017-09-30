@@ -37,7 +37,7 @@
 
   <scm>
     <connection>scm:git:git://github.com/codegen-io/jso-builder.git</connection>
-    <developerConnection>scm:git:ssh://github.com:codegen-io/jso-builder.git</developerConnection>
+    <developerConnection>scm:git:ssh://git@github.com/codegen-io/jso-builder.git</developerConnection>
     <url>https://github.com/codegen-io/jso-builder/tree/master</url>
   </scm>
 
