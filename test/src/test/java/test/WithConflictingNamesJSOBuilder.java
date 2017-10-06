@@ -4,13 +4,14 @@ import com.google.gwt.core.shared.GWT;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 
 public abstract class WithConflictingNamesJSOBuilder {
     private final WithConflictingNames object = new WithConflictingNames();
 
     @SuppressWarnings("unchecked")
-    public WithConflictingNamesJSOBuilder withValue(String[] value) {
+    public WithConflictingNamesJSOBuilder withValue(String... value) {
         if (GWT.isClient()) {
             JsArray<String> array;
             if (this.object.value != null) {
@@ -36,7 +37,7 @@ public abstract class WithConflictingNamesJSOBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public WithConflictingNamesJSOBuilder withArray(String[] array) {
+    public WithConflictingNamesJSOBuilder withArray(String... array) {
         if (GWT.isClient()) {
             JsArray<String> array_;
             if (this.object.array != null) {
@@ -62,7 +63,7 @@ public abstract class WithConflictingNamesJSOBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public WithConflictingNamesJSOBuilder withObject(String[] object) {
+    public WithConflictingNamesJSOBuilder withObject(String... object) {
         if (GWT.isClient()) {
             JsArray<String> array;
             if (this.object.object != null) {
@@ -88,7 +89,7 @@ public abstract class WithConflictingNamesJSOBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public WithConflictingNamesJSOBuilder withSize(String[] size) {
+    public WithConflictingNamesJSOBuilder withSize(String... size) {
         if (GWT.isClient()) {
             JsArray<String> array;
             if (this.object.size != null) {
@@ -114,12 +115,39 @@ public abstract class WithConflictingNamesJSOBuilder {
     }
 
     public WithConflictingNames build() {
-        return object;
+        WithConflictingNames result = new WithConflictingNames();
+        result.array = this.object.array == Global.UNDEFINED_OBJECT ? null : this.object.array;
+        result.object = this.object.object == Global.UNDEFINED_OBJECT ? null : this.object.object;
+        result.size = this.object.size == Global.UNDEFINED_OBJECT ? null : this.object.size;
+        result.value = this.object.value == Global.UNDEFINED_OBJECT ? null : this.object.value;
+        return result;
     }
 
     @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Array")
     static final class JsArray<T> {
         public native void push(T item);
+    }
+
+    @JsType(isNative = true, namespace = JsPackage.GLOBAL)
+    static final class Global {
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static Object UNDEFINED_OBJECT;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static boolean UNDEFINED_BOOLEAN;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static byte UNDEFINED_BYTE;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static char UNDEFINED_CHAR;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static double UNDEFINED_DOUBLE;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static float UNDEFINED_FLOAT;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static int UNDEFINED_INT;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static long UNDEFINED_LONG;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static short UNDEFINED_SHORT;
     }
 
 }

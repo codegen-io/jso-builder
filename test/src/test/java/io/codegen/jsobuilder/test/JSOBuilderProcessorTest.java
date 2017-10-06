@@ -76,4 +76,13 @@ public class JSOBuilderProcessorTest {
         assertThat(compilation).hadErrorContaining("Type isn't a concrete JsType JavaScript object");
     }
 
+    @Test
+    public void testPrimitives() throws IOException {
+        Compilation compilation = compiler.compile(JavaFileObjects.forResource("test/PrimitivesJSO.java"));
+
+        assertThat(compilation).succeeded();
+        assertThat(compilation).generatedSourceFile("test/PrimitivesJSOJSOBuilder")
+            .hasSourceEquivalentTo(JavaFileObjects.forResource("test/PrimitivesJSOJSOBuilder.java"));
+    }
+
 }

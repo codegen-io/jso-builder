@@ -4,6 +4,7 @@ import com.google.gwt.core.shared.GWT;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 
 public abstract class BasicJSOJSOBuilder {
@@ -51,12 +52,39 @@ public abstract class BasicJSOJSOBuilder {
     }
 
     public BasicJSO build() {
-        return object;
+        BasicJSO result = new BasicJSO();
+        result.intProperty = this.object.intProperty == Global.UNDEFINED_INT ? 0 : this.object.intProperty;
+        result.propertyWithoutAnnotation = this.object.propertyWithoutAnnotation == Global.UNDEFINED_OBJECT ? null : this.object.propertyWithoutAnnotation;
+        result.stringArrayProperty = this.object.stringArrayProperty == Global.UNDEFINED_OBJECT ? null : this.object.stringArrayProperty;
+        result.stringProperty = this.object.stringProperty == Global.UNDEFINED_OBJECT ? null : this.object.stringProperty;
+        return result;
     }
 
     @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Array")
     static final class JsArray<T> {
         public native void push(T item);
+    }
+
+    @JsType(isNative = true, namespace = JsPackage.GLOBAL)
+    static final class Global {
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static Object UNDEFINED_OBJECT;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static boolean UNDEFINED_BOOLEAN;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static byte UNDEFINED_BYTE;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static char UNDEFINED_CHAR;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static double UNDEFINED_DOUBLE;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static float UNDEFINED_FLOAT;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static int UNDEFINED_INT;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static long UNDEFINED_LONG;
+        @JsProperty(namespace = JsPackage.GLOBAL, name = "undefined")
+        public static short UNDEFINED_SHORT;
     }
 
 }

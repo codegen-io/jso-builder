@@ -2,7 +2,9 @@ package io.codegen.jsobuilder.processor;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -131,20 +133,18 @@ public class JSOBuilderProcessor extends AbstractProcessor {
         // Create object field
         typeSpec.addField(createObjectField(className));
 
-        typeSpec.addMethods(element.getEnclosedElements().stream()
-                .filter(type -> ElementKind.FIELD.equals(type.getKind()))
-                .filter(type -> type.getAnnotationMirrors().stream()
-                        .map(mirror -> AnnotationSpec.get(mirror).type)
-                        .noneMatch(annotation -> annotation.equals(ClassNames.JSINTEROP_JSIGNORE)
-                                || annotation.equals(ClassNames.JSINTEROP_JSOVERLAY)))
+        typeSpec.addMethods(getPropertyFields(element)
                 .map(this::createPropertyMethod)
                 .collect(Collectors.toList()));
 
         // Create build method
-        typeSpec.addMethod(createBuildMethod(className));
+        typeSpec.addMethod(createBuildMethod(className, element));
 
         // Create JsArray type
-        typeSpec.addType(createJsArray());
+        typeSpec.addType(createJsArrayInterface());
+
+        // Create Global type
+        typeSpec.addType(createGlobalInterface());
 
         JavaFile javaFile = JavaFile.builder(builderName.packageName(), typeSpec.build())
                 .skipJavaLangImports(true)
@@ -155,6 +155,15 @@ public class JSOBuilderProcessor extends AbstractProcessor {
         } catch (IOException e) {
             emitError("Unable to write file: " + e.getMessage(), element);
         }
+    }
+
+    private Stream<? extends Element> getPropertyFields(TypeElement element) {
+        return element.getEnclosedElements().stream()
+                .filter(type -> ElementKind.FIELD.equals(type.getKind()))
+                .filter(type -> type.getAnnotationMirrors().stream()
+                        .map(mirror -> AnnotationSpec.get(mirror).type)
+                        .noneMatch(annotation -> annotation.equals(ClassNames.JSINTEROP_JSIGNORE)
+                                || annotation.equals(ClassNames.JSINTEROP_JSOVERLAY)));
     }
 
     private FieldSpec createObjectField(ClassName className) {
@@ -228,17 +237,37 @@ public class JSOBuilderProcessor extends AbstractProcessor {
 
     }
 
-    private MethodSpec createBuildMethod(ClassName className) {
+    private MethodSpec createBuildMethod(ClassName className, TypeElement element) {
+        CodeBlock.Builder builder = CodeBlock.builder();
+
+        builder.addStatement("$T result = new $T()", className, className);
+
+        List<Element> fields = getPropertyFields(element)
+            .sorted(Comparator.comparing(field -> field.getSimpleName().toString()))
+            .collect(Collectors.toList());
+
+        for (Element field : fields) {
+            String name = field.getSimpleName().toString();
+            TypeKind kind = field.asType().getKind();
+            if (TypeKind.BOOLEAN.equals(kind)) {
+                builder.addStatement("result.$1L = this.object.$1L == Global.UNDEFINED_BOOLEAN ? false : this.object.$1L", name);
+            } else if (kind.isPrimitive()) {
+                builder.addStatement("result.$1L = this.object.$1L == Global.UNDEFINED_$2L ? 0 : this.object.$1L", name, kind.name());
+            } else {
+                builder.addStatement("result.$1L = this.object.$1L  == Global.UNDEFINED_OBJECT ? null : this.object.$1L", name);
+            }
+        }
+
+        builder.addStatement("return result");
+
         return MethodSpec.methodBuilder("build")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(className)
-                .addCode(CodeBlock.builder()
-                        .addStatement("return object")
-                        .build())
+                .addCode(builder.build())
                 .build();
     }
 
-    private TypeSpec createJsArray() {
+    private TypeSpec createJsArrayInterface() {
         TypeVariableName variableName = TypeVariableName.get("T");
         return TypeSpec.classBuilder("JsArray")
                 .addModifiers(Modifier.STATIC, Modifier.FINAL)
@@ -252,6 +281,27 @@ public class JSOBuilderProcessor extends AbstractProcessor {
                         .addModifiers(Modifier.PUBLIC, Modifier.NATIVE)
                         .addParameter(variableName, "item")
                         .build())
+                .build();
+    }
+
+    private TypeSpec createGlobalInterface() {
+        return TypeSpec.classBuilder("Global")
+                .addModifiers(Modifier.STATIC, Modifier.FINAL)
+                .addAnnotation(AnnotationSpec.builder(ClassNames.JSINTEROP_JSTYPE)
+                        .addMember("isNative", "true")
+                        .addMember("namespace", "$T.GLOBAL", ClassNames.JSINTEROP_JSPACKAGE)
+                        .build())
+                .addFields(Stream.of(Object.class,
+                        Boolean.TYPE, Byte.TYPE, Character.TYPE, Double.TYPE,
+                        Float.TYPE, Integer.TYPE, Long.TYPE, Short.TYPE)
+                        .map(type -> FieldSpec.builder(type, "UNDEFINED_" + type.getSimpleName().toUpperCase())
+                                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                                .addAnnotation(AnnotationSpec.builder(ClassNames.JSINTEROP_JSPROPERTY)
+                                        .addMember("namespace", "$T.GLOBAL", ClassNames.JSINTEROP_JSPACKAGE)
+                                        .addMember("name", "$S", "undefined")
+                                        .build())
+                                .build())
+                    .collect(Collectors.toList()))
                 .build();
     }
 
