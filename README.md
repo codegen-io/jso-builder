@@ -23,6 +23,13 @@ public class Value {
     @JsBuilder
     public static class Builder extends ValueJSOBuilder {}
 
+    // The generated builder allows serializing the JavaScript object to JSON
+    // from both a GWT application and a JRE environment like a unit test
+    @JsOverlay
+    public String toJSON() {
+        return Builder.toJSON(this);
+    }
+
 }
 
 // Use the generated builder to create our Value
@@ -31,6 +38,9 @@ Value value =
         .withProperty("one")
         .withNumber(2)
         .build();
+
+// Serialize the Value to JSON
+value.toJSON();
 ```
 
 ## Installation
