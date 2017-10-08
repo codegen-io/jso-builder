@@ -31,6 +31,11 @@ public class BasicJSO {
     String[] stringArrayProperty;
 
     @JsOverlay
+    public String toJSON() {
+        return Builder.toJSON(this);
+    }
+
+    @JsOverlay
     public static Builder builder() {
         return new Builder();
     }

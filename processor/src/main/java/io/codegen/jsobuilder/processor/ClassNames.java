@@ -20,6 +20,8 @@ public class ClassNames {
 
     public static final ClassName GWT_SHARED_HELPER = ClassName.get("com.google.gwt.core.shared", "GWT");
 
+    public static final ClassName GWT_INCOMPATIBLE = ClassName.get("com.google.gwt.core.shared", "GwtIncompatible");
+
     public static final ClassName JS_BUILDER_ANNOTATION = ClassName.get("io.codegen.jsobuilder.annotations", "JsBuilder");
 
 }

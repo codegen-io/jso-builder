@@ -140,11 +140,23 @@ public class JSOBuilderProcessor extends AbstractProcessor {
         // Create build method
         typeSpec.addMethod(createBuildMethod(className, element));
 
+        // Create toJSON method
+        typeSpec.addMethod(createToJSONMethod(className));
+
         // Create JsArray type
         typeSpec.addType(createJsArrayInterface());
 
+        // Create JSON type
+        typeSpec.addType(createJsonInterface());
+
         // Create Global type
         typeSpec.addType(createGlobalInterface());
+
+        // Create Serializer type
+        typeSpec.addType(createSerializer(builderName));
+
+        // Create JSON serializer
+        typeSpec.addType(new SerializerGenerator().createSerializer(builderName.nestedClass("JreSerializer")));
 
         JavaFile javaFile = JavaFile.builder(builderName.packageName(), typeSpec.build())
                 .skipJavaLangImports(true)
@@ -267,6 +279,22 @@ public class JSOBuilderProcessor extends AbstractProcessor {
                 .build();
     }
 
+    private MethodSpec createToJSONMethod(ClassName className) {
+        return MethodSpec.methodBuilder("toJSON")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(className, "object")
+                .returns(String.class)
+                .addCode(CodeBlock.builder()
+                        .beginControlFlow("if ($T.isClient())", ClassNames.GWT_SHARED_HELPER)
+                            .addStatement("return JSON.stringify(object)")
+                        .nextControlFlow("else")
+                            .addStatement("Serializer serializer = new JreSerializer()")
+                            .addStatement("return serializer.toJSON(object)")
+                        .endControlFlow()
+                        .build())
+                .build();
+    }
+
     private TypeSpec createJsArrayInterface() {
         TypeVariableName variableName = TypeVariableName.get("T");
         return TypeSpec.classBuilder("JsArray")
@@ -280,6 +308,22 @@ public class JSOBuilderProcessor extends AbstractProcessor {
                 .addMethod(MethodSpec.methodBuilder("push")
                         .addModifiers(Modifier.PUBLIC, Modifier.NATIVE)
                         .addParameter(variableName, "item")
+                        .build())
+                .build();
+    }
+
+    private TypeSpec createJsonInterface() {
+        return TypeSpec.classBuilder("JSON")
+                .addModifiers(Modifier.STATIC, Modifier.FINAL)
+                .addAnnotation(AnnotationSpec.builder(ClassNames.JSINTEROP_JSTYPE)
+                        .addMember("isNative", "true")
+                        .addMember("namespace", "$T.GLOBAL", ClassNames.JSINTEROP_JSPACKAGE)
+                        .addMember("name", "$S", "JSON")
+                        .build())
+                .addMethod(MethodSpec.methodBuilder("stringify")
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.NATIVE)
+                        .addParameter(Object.class, "object")
+                        .returns(String.class)
                         .build())
                 .build();
     }
@@ -302,6 +346,17 @@ public class JSOBuilderProcessor extends AbstractProcessor {
                                         .build())
                                 .build())
                     .collect(Collectors.toList()))
+                .build();
+    }
+
+    private TypeSpec createSerializer(ClassName builderName) {
+        return TypeSpec.classBuilder(builderName.nestedClass("Serializer"))
+                .addModifiers(Modifier.STATIC)
+                .addMethod(MethodSpec.methodBuilder("toJSON")
+                        .addParameter(Object.class, "object")
+                        .returns(String.class)
+                        .addStatement("return null")
+                        .build())
                 .build();
     }
 
