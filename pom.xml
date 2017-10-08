@@ -155,7 +155,7 @@
           <version>2.5.3</version>
           <configuration>
             <autoversionsubmodules>true</autoversionsubmodules>
-            <tagNameFormat>@{project.version}</tagNameFormat>
+            <tagNameFormat>v@{project.version}</tagNameFormat>
             <releaseProfiles>sonatype-oss-release</releaseProfiles>
           </configuration>
         </plugin>
