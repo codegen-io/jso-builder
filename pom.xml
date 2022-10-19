@@ -53,7 +53,7 @@
     <gwt.version>2.9.0</gwt.version>
     <immutables.version>2.9.2</immutables.version>
     <javapoet.version>1.13.0</javapoet.version>
-    <jsinterop.version>1.0.2</jsinterop.version>
+    <jsinterop.version>2.0.0</jsinterop.version>
     <junit.version>4.13.1</junit.version>
   </properties>
 
