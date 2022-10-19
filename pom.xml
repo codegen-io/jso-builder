@@ -4,7 +4,7 @@
 
   <groupId>io.codegen.jso-builder</groupId>
   <artifactId>jso-builder</artifactId>
-  <version>0.0.6</version>
+  <version>0.0.7-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>
@@ -36,7 +36,7 @@
     <connection>scm:git:git://github.com/codegen-io/jso-builder.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/codegen-io/jso-builder.git</developerConnection>
     <url>https://github.com/codegen-io/jso-builder/tree/master</url>
-    <tag>v0.0.6</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
