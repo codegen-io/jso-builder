@@ -54,7 +54,7 @@
     <immutables.version>2.9.2</immutables.version>
     <javapoet.version>1.13.0</javapoet.version>
     <jsinterop.version>2.0.0</jsinterop.version>
-    <junit.version>4.13.1</junit.version>
+    <junit.version>4.13.2</junit.version>
   </properties>
 
   <modules>
